@@ -34,7 +34,10 @@ class Settings(BaseSettings):
 
     # Google AI / Gemini
     gemini_api_key: str = Field(default="")
-    gemini_model: str = Field(default="gemini-2.0-flash")
+    # Default uses Vertex-AI-style versioned id ("gemini-2.0-flash-001"),
+    # which works on both Vertex and AI Studio. The bare alias
+    # "gemini-2.0-flash" only resolves on AI Studio.
+    gemini_model: str = Field(default="gemini-2.0-flash-001")
 
     # Maps
     google_maps_api_key: str = Field(default="")
