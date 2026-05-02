@@ -1,13 +1,34 @@
 // CivicGuide front-end — vanilla ES modules, zero build step.
 
+// `crypto.randomUUID()` only works in a secure context (HTTPS or localhost).
+// We fall back to a Math.random-based generator so the app stays usable when
+// served over plain HTTP on a LAN IP (e.g. 0.0.0.0:8080) during development.
+function newSessionId() {
+  if (window.crypto && typeof window.crypto.randomUUID === "function") {
+    return window.crypto.randomUUID();
+  }
+  // RFC4122-style v4-ish fallback. Not cryptographically strong, but good
+  // enough for a chat session id used only on the client.
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 const SESSION_ID = (() => {
   const k = "civicguide.session";
-  let v = localStorage.getItem(k);
-  if (!v) {
-    v = crypto.randomUUID();
-    localStorage.setItem(k, v);
+  try {
+    let v = localStorage.getItem(k);
+    if (!v) {
+      v = newSessionId();
+      localStorage.setItem(k, v);
+    }
+    return v;
+  } catch {
+    // localStorage may throw in private mode / sandboxed iframes.
+    return newSessionId();
   }
-  return v;
 })();
 
 const $ = (sel) => document.querySelector(sel);

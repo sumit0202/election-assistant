@@ -34,7 +34,7 @@ class Settings(BaseSettings):
 
     # Google AI / Gemini
     gemini_api_key: str = Field(default="")
-    gemini_model: str = Field(default="gemini-1.5-flash")
+    gemini_model: str = Field(default="gemini-2.0-flash")
 
     # Maps
     google_maps_api_key: str = Field(default="")
