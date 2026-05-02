@@ -70,7 +70,14 @@ log = logging.getLogger("election_assistant")
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     app.state.settings = settings
-    app.state.gemini = GeminiClient(GeminiConfig(api_key=settings.gemini_api_key, model=settings.gemini_model))
+    app.state.gemini = GeminiClient(
+        GeminiConfig(
+            model=settings.gemini_model,
+            api_key=settings.gemini_api_key,
+            project=settings.google_cloud_project,
+            location=settings.vertex_location,
+        )
+    )
     app.state.maps = MapsClient(settings.google_maps_api_key)
     app.state.youtube = YouTubeClient(settings.youtube_api_key)
     app.state.translate = TranslateClient(

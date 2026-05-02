@@ -46,6 +46,9 @@ class Settings(BaseSettings):
     google_cloud_project: str = Field(default="")
     translate_location: str = Field(default="global")
 
+    # Vertex AI (Gemini) — uses ADC; no API key needed.
+    vertex_location: str = Field(default="us-central1")
+
     # Calendar
     default_timezone: str = Field(default="Asia/Kolkata")
 
