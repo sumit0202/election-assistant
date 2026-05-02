@@ -16,6 +16,13 @@ asyncio_default_fixture_loop_scope = "function"
 addopts = "-q --strict-markers --strict-config"
 testpaths = ["tests"]
 pythonpath = ["."]
+markers = [
+  "unit: small, isolated, no I/O — runs in milliseconds",
+  "integration: exercises one service client with mocked HTTP / SDK",
+  "e2e: full FastAPI request/response cycle via TestClient",
+  "property: Hypothesis-driven invariant test",
+  "slow: takes >100 ms — keep these out of pre-commit",
+]
 
 [tool.coverage.run]
 source = ["app"]

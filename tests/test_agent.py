@@ -6,9 +6,11 @@ from typing import Any
 
 import pytest
 
-from app.agent import AgentDeps, ElectionAgent
+from app.agent import AgentDeps, ElectionAgent, _extract_plan
 from app.schemas import PollingPlace, VideoItem
 from app.services.errors import ServiceUnavailable
+
+pytestmark = pytest.mark.unit
 
 
 class FakeGemini:
@@ -145,3 +147,100 @@ async def test_agent_falls_back_when_llm_unavailable():
     )
     # Either FAQ best-effort or graceful_fallback; both must mention eci.gov.in
     assert "eci.gov.in" in result.reply.lower() or "election commission" in result.reply.lower()
+
+
+@pytest.mark.asyncio
+async def test_polling_request_without_address_asks_user() -> None:
+    """If the model emits polling tool with no address and no location hint,
+    the agent should prompt the user for one rather than calling Maps with
+    an empty string."""
+
+    deps = AgentDeps(
+        gemini=FakeGemini('{"tool":"polling_locations","args":{},"say":""}'),
+        maps=FakeMaps(),  # type: ignore[arg-type]
+    )
+    agent = ElectionAgent(deps)
+    result = await agent.respond(
+        user_message="find polling places near", locale="en", location=None
+    )
+    assert "share your city" in result.reply.lower()
+
+
+@pytest.mark.asyncio
+async def test_polling_handles_maps_outage() -> None:
+    """When MapsClient raises ServiceUnavailable, the user gets a graceful note."""
+
+    class FailingMaps:
+        async def find_polling_places(self, address: str, radius_m: int = 5000):
+            raise ServiceUnavailable("Maps", "key revoked")
+
+    deps = AgentDeps(
+        gemini=FakeGemini('{"tool":"polling_locations","args":{"address":"MG Road"},"say":"..."}'),
+        maps=FailingMaps(),  # type: ignore[arg-type]
+    )
+    agent = ElectionAgent(deps)
+    result = await agent.respond(
+        user_message="find polling near me", locale="en", location="MG Road"
+    )
+    assert "unavailable" in result.reply.lower()
+
+
+@pytest.mark.asyncio
+async def test_videos_handles_youtube_outage() -> None:
+    """YouTube outages are surfaced gracefully without crashing the agent."""
+
+    class FailingYT:
+        async def search(self, *_a, **_kw):
+            raise ServiceUnavailable("YouTube", "403 quota")
+
+    deps = AgentDeps(
+        gemini=FakeGemini('{"tool":"videos","args":{"topic":"EVM"},"say":""}'),
+        youtube=FailingYT(),  # type: ignore[arg-type]
+    )
+    agent = ElectionAgent(deps)
+    result = await agent.respond(
+        user_message="show me explainer videos on EVM", locale="en", location=None
+    )
+    assert "unavailable" in result.reply.lower()
+
+
+@pytest.mark.asyncio
+async def test_videos_empty_topic_uses_default() -> None:
+    """If the model omits the topic, the agent falls back to 'voter registration process'."""
+
+    captured: list[str] = []
+
+    class CapturingYT:
+        async def search(self, topic: str, *, locale: str = "en", max_results: int = 5):
+            captured.append(topic)
+            return []
+
+    deps = AgentDeps(
+        gemini=FakeGemini('{"tool":"videos","args":{},"say":""}'),
+        youtube=CapturingYT(),  # type: ignore[arg-type]
+    )
+    agent = ElectionAgent(deps)
+    await agent.respond(user_message="show me explainer videos", locale="en", location=None)
+    assert captured == ["voter registration process"]
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "raw,expected_keys",
+    [
+        ('{"tool":"none","say":"hi"}', {"tool", "say"}),
+        ('preamble {"tool":"videos"} trailing', {"tool"}),
+        ("not json at all", None),
+        ("[1,2,3]", None),  # array, not dict
+        ("", None),
+    ],
+)
+def test_extract_plan_handles_messy_outputs(raw: str, expected_keys: set[str] | None) -> None:
+    """The plan extractor must be robust to model output drift."""
+
+    plan = _extract_plan(raw)
+    if expected_keys is None:
+        assert plan is None
+    else:
+        assert plan is not None
+        assert expected_keys.issubset(plan.keys())

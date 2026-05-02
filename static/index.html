@@ -24,6 +24,15 @@
   <body>
     <a href="#main" class="skip-link">Skip to main content</a>
 
+    <noscript>
+      <div class="noscript-banner" role="alert">
+        <strong>JavaScript is disabled.</strong>
+        CivicGuide needs JavaScript to talk to the assistant. The information
+        on this page is also available — without scripts — at the
+        <a href="https://eci.gov.in" rel="noopener noreferrer">Election Commission of India</a>.
+      </div>
+    </noscript>
+
     <header class="topbar" role="banner">
       <div class="brand">
         <span class="brand-mark" aria-hidden="true">🗳️</span>
@@ -32,7 +41,7 @@
           <p class="tagline">Non-partisan election process assistant</p>
         </div>
       </div>
-      <nav class="topbar-actions" aria-label="App actions">
+      <nav class="topbar-actions" role="toolbar" aria-label="App actions">
         <label for="locale" class="visually-hidden">Reply language</label>
         <select id="locale" aria-label="Reply language" autocomplete="language">
           <option value="en" lang="en">English</option>
@@ -42,10 +51,17 @@
           <option value="mr" lang="mr">मराठी</option>
           <option value="te" lang="te">తెలుగు</option>
         </select>
-        <button id="reset-btn" type="button" class="ghost" aria-label="Start a new conversation">
+        <button
+          id="reset-btn"
+          type="button"
+          class="ghost"
+          aria-label="Start a new conversation"
+          aria-keyshortcuts="Alt+N"
+        >
           New chat
         </button>
       </nav>
+      <p id="status-region" class="visually-hidden" role="status" aria-live="polite"></p>
     </header>
 
     <main id="main" class="layout" tabindex="-1">
@@ -87,7 +103,13 @@
             spellcheck="true"
             required
           ></textarea>
-          <button id="send-btn" type="submit" class="primary" aria-label="Send message">
+          <button
+            id="send-btn"
+            type="submit"
+            class="primary"
+            aria-label="Send message"
+            aria-keyshortcuts="Enter"
+          >
             Send
           </button>
         </form>

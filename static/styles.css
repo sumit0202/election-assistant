@@ -55,9 +55,26 @@ body {
   padding: 8px 12px;
   border-radius: 6px;
   z-index: 999;
+  text-decoration: none;
+  font-weight: 600;
 }
 .skip-link:focus {
   top: 8px;
+  outline: 3px solid white;
+  outline-offset: 2px;
+}
+
+.noscript-banner {
+  margin: 12px;
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  border: 2px solid var(--warn);
+  background: color-mix(in srgb, var(--warn) 15%, var(--bg-card));
+  color: var(--text);
+  line-height: 1.6;
+}
+.noscript-banner a {
+  color: var(--accent-2);
 }
 
 .visually-hidden {
