@@ -1,0 +1,17 @@
+# CivicGuide code ownership.
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner — every PR needs review from this user.
+* @sumit0202
+
+# Security-sensitive areas: any change here is reviewed extra carefully.
+/.github/                   @sumit0202
+/SECURITY.md                @sumit0202
+/app/safety.py              @sumit0202
+/app/services/              @sumit0202
+/app/main.py                @sumit0202
+
+# Documentation owners (for now, same maintainer; widens with collaborators).
+/docs/                      @sumit0202
+/README.md                  @sumit0202
+/ARCHITECTURE.md            @sumit0202

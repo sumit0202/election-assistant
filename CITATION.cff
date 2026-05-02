@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+title: "CivicGuide — Election Process Education Assistant"
+message: "If you use this software, please cite it using the following metadata."
+type: software
+authors:
+  - family-names: Ahuja
+    given-names: Sumit
+    affiliation: H2S Hackathon 2026 Submission
+repository-code: "https://github.com/sumit0202/election-assistant"
+url: "https://github.com/sumit0202/election-assistant"
+abstract: >-
+  CivicGuide is a non-partisan, multilingual, voice-friendly assistant that
+  helps citizens understand the election process — eligibility, voter
+  registration, polling logistics, voting machines, and post-poll counting.
+  It integrates Google Gemini (via Vertex AI), Maps Platform, YouTube Data
+  API, Cloud Translation, and ICS calendar export, runs on Google Cloud
+  Run, and ships with a 3-layer fallback chain (FAQ → LLM → graceful
+  degradation) so the service stays useful even when upstream LLM quotas
+  are exceeded.
+keywords:
+  - elections
+  - civic-tech
+  - india
+  - google-cloud
+  - vertex-ai
+  - gemini
+  - accessibility
+  - non-partisan
+license: MIT
+version: 1.0.0
+date-released: 2026-05-02

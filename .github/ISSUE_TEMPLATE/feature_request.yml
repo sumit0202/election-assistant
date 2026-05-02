@@ -1,0 +1,36 @@
+name: Feature request
+description: Suggest an improvement or a new capability.
+title: "[feat] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user pain are you trying to solve?
+      placeholder: "Voters in Tier-3 cities can't easily verify their booth..."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Sketch the API / UI change. Don't worry about implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches you thought about and why this one wins.
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      description: |
+        CivicGuide is a non-partisan **education** tool. Please confirm:
+      options:
+        - label: This proposal is non-partisan (no candidate / party promotion)
+          required: true
+        - label: This proposal works without per-user PII collection
+          required: true
