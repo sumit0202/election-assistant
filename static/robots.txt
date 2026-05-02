@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# CivicGuide is an educational tool — we welcome indexing.
+# But please don't hammer the chat API.
+Disallow: /api/
+
+Sitemap: /static/sitemap.xml

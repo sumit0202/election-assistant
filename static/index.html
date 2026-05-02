@@ -3,13 +3,22 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0b1220" />
+    <meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f7f9fc" media="(prefers-color-scheme: light)" />
+    <meta name="color-scheme" content="light dark" />
     <meta
       name="description"
       content="CivicGuide — a non-partisan, multilingual assistant that explains the election process, polling locations, and voter timelines."
     />
+    <meta name="robots" content="index, follow" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta property="og:title" content="CivicGuide — Election Process Assistant" />
+    <meta property="og:description" content="Non-partisan, multilingual help for voters: registration, polling, dates, and explainer videos." />
+    <meta property="og:type" content="website" />
     <title>CivicGuide · Election Process Education</title>
     <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="manifest" href="/static/manifest.json" />
+    <link rel="canonical" href="/" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='30' fill='%23ff6b9a'/><text x='32' y='42' font-size='32' text-anchor='middle' fill='white' font-family='system-ui'>🗳️</text></svg>" />
   </head>
   <body>
@@ -25,13 +34,13 @@
       </div>
       <nav class="topbar-actions" aria-label="App actions">
         <label for="locale" class="visually-hidden">Reply language</label>
-        <select id="locale" aria-label="Reply language">
-          <option value="en">English</option>
-          <option value="hi">हिन्दी</option>
-          <option value="ta">தமிழ்</option>
-          <option value="bn">বাংলা</option>
-          <option value="mr">मराठी</option>
-          <option value="te">తెలుగు</option>
+        <select id="locale" aria-label="Reply language" autocomplete="language">
+          <option value="en" lang="en">English</option>
+          <option value="hi" lang="hi">हिन्दी</option>
+          <option value="ta" lang="ta">தமிழ்</option>
+          <option value="bn" lang="bn">বাংলা</option>
+          <option value="mr" lang="mr">मराठी</option>
+          <option value="te" lang="te">తెలుగు</option>
         </select>
         <button id="reset-btn" type="button" class="ghost" aria-label="Start a new conversation">
           New chat
@@ -39,18 +48,33 @@
       </nav>
     </header>
 
-    <main id="main" class="layout">
-      <section class="chat" aria-label="Chat with CivicGuide">
-        <ol id="messages" class="messages" aria-live="polite" aria-busy="false"></ol>
+    <main id="main" class="layout" tabindex="-1">
+      <section class="chat" aria-labelledby="chat-heading">
+        <h2 id="chat-heading" class="visually-hidden">Chat with CivicGuide</h2>
+        <ol
+          id="messages"
+          class="messages"
+          aria-live="polite"
+          aria-atomic="false"
+          aria-relevant="additions text"
+          aria-busy="false"
+          role="log"
+        ></ol>
 
-        <form id="composer" class="composer" autocomplete="off">
+        <form id="composer" class="composer" autocomplete="off" aria-describedby="composer-hint">
+          <p id="composer-hint" class="visually-hidden">
+            Press Enter to send, Shift+Enter to insert a newline.
+          </p>
           <label for="location" class="visually-hidden">Your city or address</label>
           <input
             id="location"
             type="text"
+            inputmode="text"
+            autocomplete="address-level2"
             placeholder="Optional: your city (e.g. Bengaluru)"
             aria-label="Your city or address"
             maxlength="200"
+            spellcheck="false"
           />
           <label for="prompt" class="visually-hidden">Ask a question about elections</label>
           <textarea
@@ -58,7 +82,9 @@
             rows="1"
             placeholder="Ask about voter ID, polling timings, registration deadlines…"
             aria-label="Ask a question"
+            aria-required="true"
             maxlength="2000"
+            spellcheck="true"
             required
           ></textarea>
           <button id="send-btn" type="submit" class="primary" aria-label="Send message">
@@ -67,37 +93,49 @@
         </form>
       </section>
 
-      <aside class="sidebar" aria-label="Quick tools">
-        <h2>Quick tools</h2>
+      <aside class="sidebar" aria-labelledby="tools-heading">
+        <h2 id="tools-heading">Quick tools</h2>
 
-        <article class="tool-card">
-          <h3>📍 Find polling-style venues</h3>
+        <article class="tool-card" aria-labelledby="polling-heading">
+          <h3 id="polling-heading">📍 Find polling-style venues</h3>
           <p>Schools, halls, and other landmarks commonly used for polling near you.</p>
           <form id="polling-form">
-            <input id="polling-addr" type="text" placeholder="Address or city" required />
+            <label for="polling-addr" class="visually-hidden">Address or city</label>
+            <input
+              id="polling-addr"
+              name="address"
+              type="text"
+              placeholder="Address or city"
+              autocomplete="address-level2"
+              required
+            />
             <button type="submit" class="primary">Search</button>
           </form>
-          <ul id="polling-results" class="results"></ul>
+          <ul id="polling-results" class="results" aria-live="polite"></ul>
         </article>
 
-        <article class="tool-card">
-          <h3>📅 Add reminder to calendar</h3>
+        <article class="tool-card" aria-labelledby="reminder-heading">
+          <h3 id="reminder-heading">📅 Add reminder to calendar</h3>
           <p>Generates a universal <code>.ics</code> file you can import to Google Calendar, Apple, or Outlook.</p>
           <form id="reminder-form">
-            <input id="reminder-title" type="text" placeholder="e.g. Maharashtra polling day" required />
-            <input id="reminder-when" type="datetime-local" required />
-            <input id="reminder-loc" type="text" placeholder="Polling station (optional)" />
+            <label for="reminder-title" class="visually-hidden">Reminder title</label>
+            <input id="reminder-title" name="title" type="text" placeholder="e.g. Maharashtra polling day" required />
+            <label for="reminder-when" class="visually-hidden">Reminder date and time</label>
+            <input id="reminder-when" name="when" type="datetime-local" required />
+            <label for="reminder-loc" class="visually-hidden">Polling station (optional)</label>
+            <input id="reminder-loc" name="location" type="text" placeholder="Polling station (optional)" autocomplete="address-level2" />
             <button type="submit" class="primary">Download .ics</button>
           </form>
         </article>
 
-        <article class="tool-card">
-          <h3>▶️ Trusted explainer videos</h3>
+        <article class="tool-card" aria-labelledby="video-heading">
+          <h3 id="video-heading">▶️ Trusted explainer videos</h3>
           <form id="video-form">
-            <input id="video-topic" type="text" placeholder="e.g. EVM and VVPAT" required />
+            <label for="video-topic" class="visually-hidden">Video topic</label>
+            <input id="video-topic" name="topic" type="text" placeholder="e.g. EVM and VVPAT" required />
             <button type="submit" class="primary">Find videos</button>
           </form>
-          <ul id="video-results" class="results"></ul>
+          <ul id="video-results" class="results" aria-live="polite"></ul>
         </article>
       </aside>
     </main>

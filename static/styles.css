@@ -324,3 +324,61 @@ textarea {
     opacity: 0;
   }
 }
+
+/* Honour user motion preference (WCAG 2.3.3 / 2.2.2). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .typing::after {
+    animation: none;
+  }
+  button.primary:hover {
+    transform: none;
+  }
+}
+
+/* High-contrast / forced-colors mode (Windows High Contrast, etc.). */
+@media (forced-colors: active) {
+  button,
+  input,
+  select,
+  textarea,
+  .msg,
+  .tool-card,
+  .results li {
+    border-color: CanvasText;
+  }
+  button.primary {
+    background: ButtonFace;
+    color: ButtonText;
+  }
+  a {
+    color: LinkText;
+  }
+}
+
+/* Honour OS-level "increase contrast" preference. */
+@media (prefers-contrast: more) {
+  :root {
+    --line: #ffffff;
+    --text-muted: #d8def0;
+  }
+  button,
+  input,
+  textarea,
+  select {
+    border-width: 2px;
+  }
+}
+
+/* Make focus indicators a hair larger for keyboard users. */
+:where(button, input, select, textarea, a, [tabindex]):focus-visible {
+  outline: 3px solid var(--accent-2);
+  outline-offset: 3px;
+}

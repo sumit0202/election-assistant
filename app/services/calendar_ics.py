@@ -8,7 +8,7 @@ Google Calendar imports `.ics` files natively at calendar.google.com.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 from icalendar import Calendar, Event
@@ -33,7 +33,7 @@ def build_reminder_ics(
     event.add("description", description)
     event.add("dtstart", start)
     event.add("dtend", start + timedelta(minutes=duration_minutes))
-    event.add("dtstamp", datetime.now(timezone.utc))
+    event.add("dtstamp", datetime.now(UTC))
     event["uid"] = f"{uuid4()}@election-assistant"
     if location:
         event.add("location", location)
