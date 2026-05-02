@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b1220" />
+    <meta
+      name="description"
+      content="CivicGuide — a non-partisan, multilingual assistant that explains the election process, polling locations, and voter timelines."
+    />
+    <title>CivicGuide · Election Process Education</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='30' fill='%23ff6b9a'/><text x='32' y='42' font-size='32' text-anchor='middle' fill='white' font-family='system-ui'>🗳️</text></svg>" />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to main content</a>
+
+    <header class="topbar" role="banner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">🗳️</span>
+        <div>
+          <h1>CivicGuide</h1>
+          <p class="tagline">Non-partisan election process assistant</p>
+        </div>
+      </div>
+      <nav class="topbar-actions" aria-label="App actions">
+        <label for="locale" class="visually-hidden">Reply language</label>
+        <select id="locale" aria-label="Reply language">
+          <option value="en">English</option>
+          <option value="hi">हिन्दी</option>
+          <option value="ta">தமிழ்</option>
+          <option value="bn">বাংলা</option>
+          <option value="mr">मराठी</option>
+          <option value="te">తెలుగు</option>
+        </select>
+        <button id="reset-btn" type="button" class="ghost" aria-label="Start a new conversation">
+          New chat
+        </button>
+      </nav>
+    </header>
+
+    <main id="main" class="layout">
+      <section class="chat" aria-label="Chat with CivicGuide">
+        <ol id="messages" class="messages" aria-live="polite" aria-busy="false"></ol>
+
+        <form id="composer" class="composer" autocomplete="off">
+          <label for="location" class="visually-hidden">Your city or address</label>
+          <input
+            id="location"
+            type="text"
+            placeholder="Optional: your city (e.g. Bengaluru)"
+            aria-label="Your city or address"
+            maxlength="200"
+          />
+          <label for="prompt" class="visually-hidden">Ask a question about elections</label>
+          <textarea
+            id="prompt"
+            rows="1"
+            placeholder="Ask about voter ID, polling timings, registration deadlines…"
+            aria-label="Ask a question"
+            maxlength="2000"
+            required
+          ></textarea>
+          <button id="send-btn" type="submit" class="primary" aria-label="Send message">
+            Send
+          </button>
+        </form>
+      </section>
+
+      <aside class="sidebar" aria-label="Quick tools">
+        <h2>Quick tools</h2>
+
+        <article class="tool-card">
+          <h3>📍 Find polling-style venues</h3>
+          <p>Schools, halls, and other landmarks commonly used for polling near you.</p>
+          <form id="polling-form">
+            <input id="polling-addr" type="text" placeholder="Address or city" required />
+            <button type="submit" class="primary">Search</button>
+          </form>
+          <ul id="polling-results" class="results"></ul>
+        </article>
+
+        <article class="tool-card">
+          <h3>📅 Add reminder to calendar</h3>
+          <p>Generates a universal <code>.ics</code> file you can import to Google Calendar, Apple, or Outlook.</p>
+          <form id="reminder-form">
+            <input id="reminder-title" type="text" placeholder="e.g. Maharashtra polling day" required />
+            <input id="reminder-when" type="datetime-local" required />
+            <input id="reminder-loc" type="text" placeholder="Polling station (optional)" />
+            <button type="submit" class="primary">Download .ics</button>
+          </form>
+        </article>
+
+        <article class="tool-card">
+          <h3>▶️ Trusted explainer videos</h3>
+          <form id="video-form">
+            <input id="video-topic" type="text" placeholder="e.g. EVM and VVPAT" required />
+            <button type="submit" class="primary">Find videos</button>
+          </form>
+          <ul id="video-results" class="results"></ul>
+        </article>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Built with Google Gemini, Maps, YouTube Data, Translation & Calendar (.ics).
+        <strong>Always verify region-specific details on your official Election Commission portal.</strong>
+      </p>
+    </footer>
+
+    <script src="/static/app.js" type="module"></script>
+  </body>
+</html>
