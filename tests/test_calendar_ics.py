@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.services.calendar_ics import build_reminder_ics
 
@@ -7,7 +7,7 @@ def test_builds_valid_ics_with_reminders():
     blob = build_reminder_ics(
         title="Polling day",
         description="Vote!",
-        start=datetime(2026, 11, 5, 9, 0, tzinfo=timezone.utc),
+        start=datetime(2026, 11, 5, 9, 0, tzinfo=UTC),
         duration_minutes=120,
         location="Booth 14",
     )

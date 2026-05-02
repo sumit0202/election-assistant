@@ -113,7 +113,7 @@ async def test_faq_short_circuits_known_question():
     calling the LLM at all — saving cost and working even if Gemini is down."""
 
     class ExplodingGemini:
-        async def generate(self, *_args, **_kwargs):  # noqa: ANN001
+        async def generate(self, *_args, **_kwargs):
             raise AssertionError("Gemini should not be called for FAQ questions")
 
     deps = AgentDeps(gemini=ExplodingGemini())  # type: ignore[arg-type]
@@ -133,7 +133,7 @@ async def test_agent_falls_back_when_llm_unavailable():
     should still produce a useful answer (best-effort FAQ + graceful note)."""
 
     class FailingGemini:
-        async def generate(self, *_args, **_kwargs):  # noqa: ANN001
+        async def generate(self, *_args, **_kwargs):
             raise ServiceUnavailable("Gemini", "quota exceeded")
 
     deps = AgentDeps(gemini=FailingGemini())  # type: ignore[arg-type]

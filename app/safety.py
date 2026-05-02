@@ -13,8 +13,8 @@ For deeper moderation, plug in Vertex AI safety filters or Perspective API.
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable
 
 # Refuse to provide partisan voting recommendations.
 _PARTISAN_PATTERNS: tuple[re.Pattern[str], ...] = (

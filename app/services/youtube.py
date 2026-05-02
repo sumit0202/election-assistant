@@ -48,9 +48,7 @@ class YouTubeClient:
         }
         r = await self._client.get(_SEARCH_URL, params=params)
         if r.status_code != 200:
-            raise ServiceUnavailable(
-                "YouTube", f"HTTP {r.status_code}: {r.text[:200]}"
-            )
+            raise ServiceUnavailable("YouTube", f"HTTP {r.status_code}: {r.text[:200]}")
         data = r.json()
         items: list[VideoItem] = []
         for entry in data.get("items", []):

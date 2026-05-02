@@ -28,9 +28,9 @@ class TranslateConfig:
 class TranslateClient:
     def __init__(self, config: TranslateConfig) -> None:
         self._config = config
-        self._client: "translate.TranslationServiceClient | None" = None
+        self._client: translate.TranslationServiceClient | None = None
 
-    def _ensure(self) -> "translate.TranslationServiceClient":
+    def _ensure(self) -> translate.TranslationServiceClient:
         if translate is None:
             raise ServiceUnavailable("Translate", "google-cloud-translate not installed")
         if not self._config.project:

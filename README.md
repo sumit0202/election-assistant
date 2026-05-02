@@ -91,25 +91,39 @@ trade-off that keeps the app *safer* for users and *simpler* to maintain.
 
 - **Pydantic v2 validation** on every endpoint.
 - **CORS allow-list**, **GZip**, **per-IP rate-limiting** (slowapi).
-- **Security headers**: `X-Content-Type-Options`, `X-Frame-Options`,
-  `Referrer-Policy`, `Permissions-Policy`.
+- **Full security-header suite**: `Content-Security-Policy` (strict, no
+  inline script), `Strict-Transport-Security` (HSTS, preload-ready),
+  `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`,
+  `Permissions-Policy`, `Cross-Origin-Opener-Policy`,
+  `Cross-Origin-Resource-Policy`.
 - **PII redaction** of phone, email, Aadhaar, PAN before LLM calls.
 - **Prompt-injection** patterns blocked at input.
 - **Non-partisanship** enforced on input *and* output.
 - **Container hardening**: multi-stage build, runs as non-root user,
   minimal `python:3.11-slim` base.
+- **Supply chain**: Dependabot weekly PRs (`.github/dependabot.yml`),
+  `pip-audit` and `bandit` in CI, pinned versions in `requirements.txt`.
+- **Pre-commit**: `ruff`, `bandit`, secret-detection (`.pre-commit-config.yaml`).
+- See [`SECURITY.md`](./SECURITY.md) for the full threat model and
+  responsible-disclosure policy.
 
 ---
 
 ## ♿ Accessibility
 
 - Skip-link, semantic landmarks (`<header>`, `<main>`, `<aside>`,
-  `<footer>`), `aria-live` chat region, visible focus rings.
-- Keyboard-first: `Enter` to send, `Shift+Enter` for newline.
-- Respects `prefers-color-scheme`.
-- Mobile-first responsive grid.
-- Locale switcher with 6 starter languages (English, Hindi, Tamil,
-  Bengali, Marathi, Telugu).
+  `<footer>`), `aria-live` chat region (`role="log"`), visible focus rings.
+- Keyboard-first: `Enter` to send, `Shift+Enter` for newline. Form fields
+  carry explicit labels, `autocomplete` hints, and `aria-describedby`
+  guidance.
+- `<html lang>` updates dynamically when the locale changes — screen
+  readers pronounce content correctly.
+- Honours `prefers-color-scheme`, `prefers-reduced-motion`,
+  `prefers-contrast`, and `forced-colors` (Windows High Contrast).
+- Mobile-first responsive grid; tested down to 320 px viewports.
+- 6 starter languages (English, Hindi, Tamil, Bengali, Marathi, Telugu)
+  with proper `lang=""` per option for correct text-to-speech.
+- Web App Manifest + theme-color for installable PWA experience.
 
 ---
 
@@ -133,7 +147,33 @@ pytest -q --cov=app --cov-report=term-missing
 ```
 
 The test suite is fully offline — Google clients are stubbed via fakes and
-HTTP-mocked with `respx`.
+HTTP-mocked with `respx`. Current state: **50 tests, 91% coverage**.
+
+### Continuous integration
+
+Every push and PR runs `.github/workflows/ci.yml`:
+
+1. `ruff check` + `ruff format --check`
+2. `bandit` security audit
+3. `pytest --cov` on Python 3.11 *and* 3.12 (matrix)
+4. `pip-audit` dependency CVE scan
+5. `docker build` (cached) — proves the Cloud Run image still builds
+
+### Dev hygiene
+
+```bash
+pip install pre-commit && pre-commit install
+```
+
+Wires up `ruff`, `bandit`, secret-detection, large-file & merge-conflict
+checks before every commit.
+
+### More docs
+
+- [`ARCHITECTURE.md`](./ARCHITECTURE.md) — system + agent flow diagrams
+- [`SECURITY.md`](./SECURITY.md) — threat model & disclosure policy
+- [`CONTRIBUTING.md`](./CONTRIBUTING.md) — local dev, code style, PR flow
+- [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md) — community standards
 
 ---
 

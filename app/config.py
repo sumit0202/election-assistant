@@ -9,7 +9,6 @@ environment variables before the first call to `get_settings()`.
 from __future__ import annotations
 
 from functools import lru_cache
-from typing import List
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -27,7 +26,10 @@ class Settings(BaseSettings):
 
     # Core
     app_env: str = Field(default="dev")
-    app_host: str = Field(default="0.0.0.0")
+    # 0.0.0.0 is intentional: Cloud Run / Docker route external traffic via
+    # the container interface, not loopback. Override with APP_HOST=127.0.0.1
+    # for local-only development.
+    app_host: str = Field(default="0.0.0.0")  # noqa: S104
     app_port: int = Field(default=8080)
     log_level: str = Field(default="info")
     allowed_origins: str = Field(default="http://localhost:8080")
@@ -67,7 +69,7 @@ class Settings(BaseSettings):
         return v
 
     @property
-    def cors_origins(self) -> List[str]:
+    def cors_origins(self) -> list[str]:
         return [o.strip() for o in self.allowed_origins.split(",") if o.strip()]
 
     @property
