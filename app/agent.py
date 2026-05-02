@@ -22,6 +22,7 @@ from typing import Any
 
 from .schemas import ToolCall
 from .services.errors import ServiceUnavailable
+from .services.faq import FaqHit, best_match as faq_best_match, graceful_fallback
 from .services.gemini import GeminiClient
 from .services.maps import MapsClient
 from .services.youtube import YouTubeClient
@@ -100,11 +101,34 @@ class ElectionAgent:
         locale: str,
         location: str | None,
     ) -> AgentResult:
+        # ----- Layer 1: deterministic FAQ check (fast, free, always works) -----
+        # If the user clearly wants polling/video tools, skip the FAQ and let
+        # the LLM route. Otherwise prefer the FAQ for known-good answers.
+        if not self._likely_tool_intent(user_message):
+            hit = faq_best_match(user_message)
+            if hit is not None:
+                return AgentResult(
+                    reply=hit.answer,
+                    tools_used=[
+                        ToolCall(
+                            name="faq",
+                            arguments={"id": hit.id},
+                            result_summary=f"score={hit.score:.2f}",
+                        )
+                    ],
+                    citations=["Curated FAQ — verify on eci.gov.in for region-specific details."],
+                )
+
+        # ----- Layer 2: LLM-driven plan + tool routing -----
         user_prompt = self._build_user_prompt(user_message, locale, location)
 
-        raw = await self._deps.gemini.generate(SYSTEM_PROMPT, user_prompt)
-        plan = _extract_plan(raw) or {"tool": "none", "say": raw}
+        try:
+            raw = await self._deps.gemini.generate(SYSTEM_PROMPT, user_prompt)
+        except ServiceUnavailable as exc:
+            log.warning("Gemini unavailable, falling back: %s", exc)
+            return self._llm_unavailable_fallback(user_message)
 
+        plan = _extract_plan(raw) or {"tool": "none", "say": raw}
         tool = (plan.get("tool") or "none").lower()
         say = (plan.get("say") or "").strip()
         args = plan.get("args") or {}
@@ -115,10 +139,44 @@ class ElectionAgent:
         if tool == "videos" and self._deps.youtube:
             return await self._handle_videos(say, args, locale)
 
-        # Default / "none": return the model's answer directly.
         return AgentResult(
             reply=say or raw.strip(),
             citations=["Verify region-specific details on your official Election Commission portal."],
+        )
+
+    # ------------------------------------------------------------------
+    # Routing helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _likely_tool_intent(text: str) -> bool:
+        """Cheap heuristic: does the message obviously need Maps or YouTube?"""
+        t = text.lower()
+        return (
+            "polling" in t and ("near" in t or "find" in t or "where" in t)
+        ) or any(w in t for w in ("video", "youtube", "explainer", "watch"))
+
+    def _llm_unavailable_fallback(self, user_message: str) -> AgentResult:
+        """Best effort when Gemini is down — try FAQ even below threshold."""
+        hit: FaqHit | None = faq_best_match(user_message, threshold=0.0)
+        if hit is not None:
+            return AgentResult(
+                reply=hit.answer,
+                tools_used=[
+                    ToolCall(
+                        name="faq",
+                        arguments={"id": hit.id, "fallback": True},
+                        result_summary=f"score={hit.score:.2f}",
+                    )
+                ],
+                citations=[
+                    "AI is temporarily unavailable; answer served from curated FAQ.",
+                    "Verify region-specific details on eci.gov.in.",
+                ],
+            )
+        return AgentResult(
+            reply=graceful_fallback(user_message),
+            citations=["AI is temporarily unavailable — see eci.gov.in for authoritative info."],
         )
 
     # ------------------------------------------------------------------
