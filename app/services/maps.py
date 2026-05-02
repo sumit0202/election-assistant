@@ -36,15 +36,20 @@ def _haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
 
 
 class MapsClient:
+    """Async facade for Google Maps Geocoding + Places Text Search."""
+
     def __init__(self, api_key: str, *, client: httpx.AsyncClient | None = None) -> None:
+        """Construct a client. Pass an `httpx.AsyncClient` to share connection pools."""
         self._api_key = api_key
         self._client = client or httpx.AsyncClient(timeout=10.0)
 
     def _ensure(self) -> None:
+        """Raise `ServiceUnavailable` if no API key is configured."""
         if not self._api_key:
             raise ServiceUnavailable("Google Maps", "GOOGLE_MAPS_API_KEY missing")
 
     async def geocode(self, address: str) -> tuple[float, float, str]:
+        """Geocode a free-text address. Returns `(lat, lng, formatted_address)`."""
         self._ensure()
         params = {"address": address, "key": self._api_key}
         r = await self._client.get(_GEOCODE_URL, params=params)
@@ -110,4 +115,5 @@ class MapsClient:
         return formatted, results
 
     async def aclose(self) -> None:
+        """Close the underlying `httpx.AsyncClient`."""
         await self._client.aclose()

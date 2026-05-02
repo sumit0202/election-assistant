@@ -41,12 +41,21 @@ _PII_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
 
 @dataclass(frozen=True)
 class SafetyVerdict:
+    """Result of a safety check.
+
+    `allowed=False` means the caller must refuse to forward `text` to the
+    LLM; `reason` is a user-safe explanation. When `allowed=True`,
+    `sanitized_text` carries the (possibly redacted) text that is safe
+    to send onwards.
+    """
+
     allowed: bool
     reason: str | None = None
     sanitized_text: str | None = None
 
 
 def _matches_any(text: str, patterns: Iterable[re.Pattern[str]]) -> bool:
+    """Return True if any of the compiled regex patterns matches `text`."""
     return any(p.search(text) for p in patterns)
 
 

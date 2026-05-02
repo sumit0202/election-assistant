@@ -63,6 +63,7 @@ class Settings(BaseSettings):
     @field_validator("log_level")
     @classmethod
     def _normalise_log_level(cls, v: str) -> str:
+        """Coerce arbitrary log-level strings into the canonical lowercase form."""
         v = v.lower()
         if v not in {"debug", "info", "warning", "error", "critical"}:
             return "info"
@@ -70,10 +71,12 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins(self) -> list[str]:
+        """Parse the comma-separated `ALLOWED_ORIGINS` env var into a list."""
         return [o.strip() for o in self.allowed_origins.split(",") if o.strip()]
 
     @property
     def is_production(self) -> bool:
+        """True when running in a production-tier environment (`prod`/`production`)."""
         return self.app_env.lower() in {"prod", "production"}
 
 

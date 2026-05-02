@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Docstring coverage gate (`interrogate`)** enforcing ≥95% (now 100%) on `app/`
+- **Mypy** static type-check step in CI for the whole `app/` package
+- `docs/CODE-QUALITY.md` documenting enforced engineering metrics
+- `make typecheck` + `make docstrings` developer targets
+- README badges for docstring coverage and mypy
 - Property-based tests using `hypothesis` for the safety + FAQ modules
 - Request-ID middleware (`X-Request-ID` header for traceability)
 - `/.well-known/security.txt` for responsible-disclosure metadata

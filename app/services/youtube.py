@@ -24,17 +24,22 @@ _TRUSTED_CHANNELS = (
 
 
 class YouTubeClient:
+    """Async wrapper around YouTube Data API v3 search."""
+
     def __init__(self, api_key: str, *, client: httpx.AsyncClient | None = None) -> None:
+        """Construct a client. Pass an `httpx.AsyncClient` to share connection pools."""
         self._api_key = api_key
         self._client = client or httpx.AsyncClient(timeout=10.0)
 
     def _ensure(self) -> None:
+        """Raise `ServiceUnavailable` if no API key is configured."""
         if not self._api_key:
             raise ServiceUnavailable("YouTube", "YOUTUBE_API_KEY missing")
 
     async def search(
         self, topic: str, *, locale: str = "en", max_results: int = 5
     ) -> list[VideoItem]:
+        """Search YouTube and return up to `max_results` videos, trusted-channels first."""
         self._ensure()
         query = f"{topic} election explainer"
         params: dict[str, Any] = {
@@ -66,12 +71,13 @@ class YouTubeClient:
                 )
             )
 
-        # Boost trusted channels to the top.
         def _rank(v: VideoItem) -> int:
+            """Sort key: trusted channels first (0), everyone else (1)."""
             return 0 if v.channel in _TRUSTED_CHANNELS else 1
 
         items.sort(key=_rank)
         return items
 
     async def aclose(self) -> None:
+        """Close the underlying `httpx.AsyncClient`."""
         await self._client.aclose()

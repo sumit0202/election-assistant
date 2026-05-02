@@ -9,6 +9,8 @@ PIP := $(VENV)/bin/pip
 PYTEST := $(VENV)/bin/pytest
 RUFF := $(VENV)/bin/ruff
 BANDIT := $(VENV)/bin/bandit
+MYPY := $(VENV)/bin/mypy
+INTERROGATE := $(VENV)/bin/interrogate
 
 .PHONY: help
 help: ## Show this help message
@@ -21,7 +23,7 @@ install: ## Create a venv and install dependencies
 	$(PY) -m venv $(VENV)
 	$(PIP) install --upgrade pip
 	$(PIP) install -r requirements.txt
-	$(PIP) install pytest pytest-asyncio pytest-cov respx hypothesis ruff 'bandit[toml]' pip-audit pre-commit
+	$(PIP) install pytest pytest-asyncio pytest-cov respx hypothesis ruff 'bandit[toml]' pip-audit pre-commit mypy interrogate
 
 .PHONY: run
 run: ## Run the dev server on port 8080
@@ -40,6 +42,14 @@ lint: ## Run ruff + bandit checks (no fixes)
 	$(RUFF) check .
 	$(RUFF) format --check .
 	$(BANDIT) -c pyproject.toml -r app -ll
+
+.PHONY: typecheck
+typecheck: ## Static type analysis with mypy
+	$(MYPY) app
+
+.PHONY: docstrings
+docstrings: ## Verify docstring coverage >= 95%
+	$(INTERROGATE) -c pyproject.toml app
 
 .PHONY: fmt
 fmt: ## Auto-fix style + formatting issues
@@ -64,5 +74,5 @@ clean: ## Remove caches, build artifacts, coverage data
 	find . -name __pycache__ -type d -prune -exec rm -rf {} +
 
 .PHONY: ci
-ci: lint test audit ## Run everything CI runs, locally
-	@echo "✓ All CI checks passed locally"
+ci: lint docstrings test audit ## Run everything CI runs, locally
+	@echo "All CI checks passed locally"

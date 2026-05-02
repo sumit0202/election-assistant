@@ -27,7 +27,7 @@ jobs:
           cache: pip
 
       - name: Install lint tools
-        run: pip install ruff==0.6.9 bandit[toml]==1.7.10
+        run: pip install ruff==0.6.9 bandit[toml]==1.7.10 interrogate==1.7.0 mypy==1.13.0
 
       - name: Ruff (style + bug-bear + bandit-lite)
         run: ruff check . --output-format=github
@@ -37,6 +37,14 @@ jobs:
 
       - name: Bandit (security audit)
         run: bandit -c pyproject.toml -r app -ll
+
+      - name: Interrogate (docstring coverage >=95%)
+        run: interrogate -c pyproject.toml app
+
+      - name: Mypy (static type check)
+        run: |
+          pip install -r requirements.txt
+          mypy app
 
   test:
     name: Tests (Python ${{ matrix.python }})

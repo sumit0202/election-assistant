@@ -21,16 +21,22 @@ except Exception:  # pragma: no cover - optional dep
 
 @dataclass
 class TranslateConfig:
+    """Static config for `TranslateClient`: GCP project + location."""
+
     project: str
     location: str = "global"
 
 
 class TranslateClient:
+    """Lazy, thread-safe wrapper around Google Cloud Translation v3."""
+
     def __init__(self, config: TranslateConfig) -> None:
+        """Build a client; the underlying SDK client is constructed on first use."""
         self._config = config
         self._client: translate.TranslationServiceClient | None = None
 
     def _ensure(self) -> translate.TranslationServiceClient:
+        """Lazily build the underlying SDK client and surface clean errors."""
         if translate is None:
             raise ServiceUnavailable("Translate", "google-cloud-translate not installed")
         if not self._config.project:
@@ -45,6 +51,7 @@ class TranslateClient:
     async def translate(
         self, text: str, target: str, source: str | None = None
     ) -> tuple[str, str | None]:
+        """Translate `text` to `target`. Returns `(translated_text, detected_source)`."""
         client = self._ensure()
         parent = f"projects/{self._config.project}/locations/{self._config.location}"
         try:
