@@ -62,6 +62,15 @@ class GeminiClient:
 
         self._ensure_ready()
 
+        # The google-generativeai SDK expects the fully-qualified
+        # `HARM_CATEGORY_*` keys; the short form raises KeyError.
+        safety_settings = {
+            "HARM_CATEGORY_HARASSMENT": "BLOCK_MEDIUM_AND_ABOVE",
+            "HARM_CATEGORY_HATE_SPEECH": "BLOCK_MEDIUM_AND_ABOVE",
+            "HARM_CATEGORY_SEXUALLY_EXPLICIT": "BLOCK_MEDIUM_AND_ABOVE",
+            "HARM_CATEGORY_DANGEROUS_CONTENT": "BLOCK_MEDIUM_AND_ABOVE",
+        }
+
         model = genai.GenerativeModel(  # type: ignore[union-attr]
             model_name=self._config.model,
             system_instruction=system_prompt,
@@ -70,12 +79,7 @@ class GeminiClient:
                 "top_p": 0.95,
                 "max_output_tokens": 1024,
             },
-            safety_settings={
-                "HARASSMENT": "BLOCK_MEDIUM_AND_ABOVE",
-                "HATE_SPEECH": "BLOCK_MEDIUM_AND_ABOVE",
-                "SEXUALLY_EXPLICIT": "BLOCK_MEDIUM_AND_ABOVE",
-                "DANGEROUS_CONTENT": "BLOCK_MEDIUM_AND_ABOVE",
-            },
+            safety_settings=safety_settings,
         )
 
         chat = model.start_chat(history=list(history))
