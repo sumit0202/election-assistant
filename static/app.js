@@ -41,6 +41,7 @@ const els = {
   sendBtn: $("#send-btn"),
   locale: $("#locale"),
   resetBtn: $("#reset-btn"),
+  status: $("#status-region"),
   pollingForm: $("#polling-form"),
   pollingAddr: $("#polling-addr"),
   pollingResults: $("#polling-results"),
@@ -52,6 +53,17 @@ const els = {
   reminderWhen: $("#reminder-when"),
   reminderLoc: $("#reminder-loc"),
 };
+
+// Push a transient message to the screen-reader live region. Visible only to
+// AT users; sighted users see UI updates inline.
+function announce(text) {
+  if (!els.status) return;
+  els.status.textContent = "";
+  // Reset + re-set forces AT to re-announce identical strings.
+  setTimeout(() => {
+    els.status.textContent = text;
+  }, 50);
+}
 
 // Tiny markdown → safe HTML (links, bold, italics, lists). Avoids importing a
 // 50 KB dependency just for chat formatting.
@@ -88,6 +100,7 @@ function setBusy(b) {
   els.sendBtn.disabled = b;
   // Update label so screen readers announce the state change.
   els.sendBtn.setAttribute("aria-label", b ? "Sending… please wait" : "Send message");
+  if (b) announce("Sending your message…");
 }
 
 // Keep `<html lang>` synced with the chosen locale so screen readers
@@ -173,6 +186,16 @@ els.prompt.addEventListener("keydown", (e) => {
 els.resetBtn.addEventListener("click", () => {
   els.messages.innerHTML = "";
   greet();
+  announce("Conversation cleared. Ask a new question.");
+  els.prompt.focus();
+});
+
+// Alt+N — start a new conversation from anywhere on the page.
+document.addEventListener("keydown", (e) => {
+  if (e.altKey && (e.key === "n" || e.key === "N")) {
+    e.preventDefault();
+    els.resetBtn.click();
+  }
 });
 
 // ---------------- Polling places ----------------

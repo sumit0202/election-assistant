@@ -172,8 +172,26 @@ checks before every commit.
 
 - [`ARCHITECTURE.md`](./ARCHITECTURE.md) — system + agent flow diagrams
 - [`SECURITY.md`](./SECURITY.md) — threat model & disclosure policy
+- [`docs/API.md`](./docs/API.md) — every endpoint documented with examples
+- [`docs/TESTING.md`](./docs/TESTING.md) — test pyramid, fixtures, markers
+- [`docs/ACCESSIBILITY.md`](./docs/ACCESSIBILITY.md) — WCAG 2.2 AA conformance plan
+- [`CHANGELOG.md`](./CHANGELOG.md) — version history (Keep-a-Changelog format)
 - [`CONTRIBUTING.md`](./CONTRIBUTING.md) — local dev, code style, PR flow
 - [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md) — community standards
+- [`LICENSE`](./LICENSE) — MIT
+
+### Convenience targets (`Makefile`)
+
+```bash
+make install     # set up venv + install everything
+make test        # run the suite verbose
+make cov         # run with coverage + HTML report
+make lint        # ruff + bandit (no fixes)
+make fmt         # auto-fix style
+make audit       # pip-audit against the GHSA DB
+make ci          # everything CI runs, locally
+make docker-run  # build + run the prod image on :8080
+```
 
 ---
 

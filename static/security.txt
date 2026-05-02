@@ -1,0 +1,9 @@
+# RFC 9116 — security contact metadata.
+# https://datatracker.ietf.org/doc/html/rfc9116
+
+Contact: https://github.com/sumit0202/election-assistant/security/advisories/new
+Expires: 2027-12-31T23:59:59.000Z
+Preferred-Languages: en, hi
+Canonical: https://github.com/sumit0202/election-assistant/blob/main/.well-known/security.txt
+Policy: https://github.com/sumit0202/election-assistant/blob/main/SECURITY.md
+Acknowledgments: https://github.com/sumit0202/election-assistant/blob/main/SECURITY.md#responsible-disclosure

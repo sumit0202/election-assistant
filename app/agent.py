@@ -60,6 +60,12 @@ If you are unsure, choose "none" and answer directly in "say".
 
 @dataclass
 class AgentDeps:
+    """Service-client bundle injected into :class:`ElectionAgent`.
+
+    Maps and YouTube are optional so unit tests can swap them out for
+    fakes without instantiating the real HTTP clients.
+    """
+
     gemini: GeminiClient
     maps: MapsClient | None = None
     youtube: YouTubeClient | None = None
@@ -67,6 +73,14 @@ class AgentDeps:
 
 @dataclass
 class AgentResult:
+    """Outcome of one ``ElectionAgent.respond`` call.
+
+    Attributes:
+        reply: Markdown-formatted reply ready to render in the UI.
+        tools_used: Ordered list of tools invoked (FAQ, polling, videos).
+        citations: Inline citation pointers for the user.
+    """
+
     reply: str
     tools_used: list[ToolCall] = field(default_factory=list)
     citations: list[str] = field(default_factory=list)
@@ -76,7 +90,15 @@ _JSON_RE = re.compile(r"\{[\s\S]*\}")
 
 
 def _extract_plan(raw: str) -> dict[str, Any] | None:
-    """Best-effort JSON plan extraction; returns None if not parseable."""
+    """Pull a JSON plan from the model's free-text response.
+
+    The router prompt asks Gemini to emit a single JSON object. Real
+    models occasionally wrap it in prose or markdown fences, so we do a
+    best-effort regex extraction and a defensive ``json.loads``. Returns
+    ``None`` when nothing parseable is found, so callers can fall back to
+    the raw text answer.
+    """
+
     m = _JSON_RE.search(raw)
     if not m:
         return None
@@ -90,9 +112,24 @@ def _extract_plan(raw: str) -> dict[str, Any] | None:
 
 
 class ElectionAgent:
-    """Coordinates Gemini + tools to answer election-related questions."""
+    """Coordinates Gemini + tools to answer election-related questions.
+
+    The agent runs a 3-layer fallback chain:
+
+    1. **FAQ** — deterministic keyword match against
+       ``app/data/faq.json`` for common questions.
+    2. **LLM** — :class:`GeminiClient` with a JSON-router system prompt.
+    3. **Graceful** — if the LLM is unavailable, attempt a relaxed FAQ
+       match; otherwise return a friendly pointer to ``eci.gov.in``.
+    """
 
     def __init__(self, deps: AgentDeps) -> None:
+        """Store the dependency bundle for later use.
+
+        Args:
+            deps: Pre-constructed Gemini / Maps / YouTube clients.
+        """
+
         self._deps = deps
 
     async def respond(
@@ -102,6 +139,16 @@ class ElectionAgent:
         locale: str,
         location: str | None,
     ) -> AgentResult:
+        """Run the full 3-layer agent pipeline for one user message.
+
+        Args:
+            user_message: PII-redacted, safety-checked user text.
+            locale: Reply language (BCP-47 short code).
+            location: Optional user-supplied city / address hint.
+
+        Returns:
+            An :class:`AgentResult` with the reply and any tool metadata.
+        """
         # ----- Layer 1: deterministic FAQ check (fast, free, always works) -----
         # If the user clearly wants polling/video tools, skip the FAQ and let
         # the LLM route. Otherwise prefer the FAQ for known-good answers.
@@ -153,14 +200,27 @@ class ElectionAgent:
 
     @staticmethod
     def _likely_tool_intent(text: str) -> bool:
-        """Cheap heuristic: does the message obviously need Maps or YouTube?"""
+        """Heuristic: does the message obviously need a Maps / YouTube tool?
+
+        Used to bypass the FAQ layer when the user explicitly asks for
+        polling-station lookup or an explainer video — going through the
+        FAQ would produce a generic answer and lose the requested tool.
+        """
+
         t = text.lower()
         return ("polling" in t and ("near" in t or "find" in t or "where" in t)) or any(
             w in t for w in ("video", "youtube", "explainer", "watch")
         )
 
     def _llm_unavailable_fallback(self, user_message: str) -> AgentResult:
-        """Best effort when Gemini is down — try FAQ even below threshold."""
+        """Construct a useful reply when the LLM call has failed.
+
+        First we try a *relaxed* FAQ match (threshold 0.0) so even partial
+        keyword overlap returns the closest curated answer. If no match
+        exists we hand off to :func:`graceful_fallback` which emits a
+        gentle "couldn't answer, here's where to look" message.
+        """
+
         hit: FaqHit | None = faq_best_match(user_message, threshold=0.0)
         if hit is not None:
             return AgentResult(
@@ -189,6 +249,15 @@ class ElectionAgent:
     async def _handle_polling(
         self, say: str, args: dict[str, Any], fallback_location: str | None
     ) -> AgentResult:
+        """Resolve an address via Maps and format the result for chat.
+
+        Args:
+            say: Optional preface text the model wanted to show the user.
+            args: Plan args from the router (expected key: ``address``).
+            fallback_location: Location hint from the request body, used
+                when the model didn't supply an explicit address.
+        """
+
         address = (args.get("address") or fallback_location or "").strip()
         if not address:
             return AgentResult(
@@ -231,6 +300,8 @@ class ElectionAgent:
         )
 
     async def _handle_videos(self, say: str, args: dict[str, Any], locale: str) -> AgentResult:
+        """Look up YouTube explainer videos for the requested topic."""
+
         topic = (args.get("topic") or "voter registration process").strip()
         try:
             assert self._deps.youtube is not None
@@ -260,6 +331,13 @@ class ElectionAgent:
 
     @staticmethod
     def _build_user_prompt(message: str, locale: str, location: str | None) -> str:
+        """Compose the user-facing prompt that gets sent to Gemini.
+
+        The format is intentionally simple: one line of context (locale
+        and optional location) followed by the actual question. Keeps the
+        prompt deterministic and easy to grep in production logs.
+        """
+
         ctx_parts = [f"User locale: {locale}"]
         if location:
             ctx_parts.append(f"User location hint: {location}")
