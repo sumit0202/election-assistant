@@ -73,6 +73,7 @@ class GeminiClient:
     # ------------------------------------------------------------------
 
     def _ensure_ready(self) -> None:
+        """Initialise the chosen backend on first use (idempotent)."""
         if self._initialized:
             return
 
@@ -89,6 +90,7 @@ class GeminiClient:
         self._initialized = True
 
     def _init_vertex(self) -> None:
+        """Initialise the Vertex AI SDK using ADC (no API key needed)."""
         if vertexai is None:
             raise ServiceUnavailable("Gemini", "google-cloud-aiplatform not installed")
         try:
@@ -106,6 +108,7 @@ class GeminiClient:
         )
 
     def _init_aistudio(self) -> None:
+        """Initialise the AI Studio SDK with the supplied API key."""
         if genai is None:
             raise ServiceUnavailable("Gemini", "google-generativeai not installed")
         genai.configure(api_key=self._config.api_key)
@@ -141,6 +144,7 @@ class GeminiClient:
         history: Iterable[dict[str, Any]],
         temperature: float,
     ) -> str:
+        """Generate via Vertex AI SDK; raises `ServiceUnavailable` on upstream failure."""
         try:
             model = VertexGenerativeModel(  # type: ignore[union-attr]
                 model_name=self._config.model,
@@ -173,6 +177,7 @@ class GeminiClient:
         history: Iterable[dict[str, Any]],
         temperature: float,
     ) -> str:
+        """Generate via AI Studio SDK; raises `ServiceUnavailable` on upstream failure."""
         try:
             model = genai.GenerativeModel(  # type: ignore[union-attr]
                 model_name=self._config.model,
@@ -200,6 +205,7 @@ class GeminiClient:
 
     @staticmethod
     def _empty_fallback() -> str:
+        """Polite, neutral message returned when the model produced empty text."""
         return (
             "I couldn't generate a confident answer for that. Could you "
             "rephrase or ask about a more specific topic such as voter "

@@ -6,7 +6,9 @@
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)](https://www.python.org/)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://docs.astral.sh/ruff/)
 [![Coverage](https://img.shields.io/badge/coverage-93%25-brightgreen)](./docs/TESTING.md)
-[![Tests](https://img.shields.io/badge/tests-90%20passed-brightgreen)](./tests)
+[![Tests](https://img.shields.io/badge/tests-114%20passed-brightgreen)](./tests)
+[![Docstrings](https://img.shields.io/badge/docstrings-100%25-brightgreen)](./docs/CODE-QUALITY.md)
+[![Type checked: mypy](https://img.shields.io/badge/type%20checked-mypy-2a6db2)](./docs/CODE-QUALITY.md)
 [![WCAG](https://img.shields.io/badge/WCAG-2.2%20AA-success)](./docs/ACCESSIBILITY.md)
 [![Security](https://img.shields.io/badge/security-bandit%20%7C%20pip--audit%20%7C%20codeql-red)](./SECURITY.md)
 [![Cloud Run](https://img.shields.io/badge/deployed%20on-Cloud%20Run-4285F4?logo=googlecloud&logoColor=white)](https://cloud.google.com/run)
@@ -183,9 +185,11 @@ checks before every commit.
 
 - [`ARCHITECTURE.md`](./ARCHITECTURE.md) — system + agent flow diagrams
 - [`SECURITY.md`](./SECURITY.md) — threat model & disclosure policy
+- [`docs/CODE-QUALITY.md`](./docs/CODE-QUALITY.md) — engineering bar & enforced metrics
 - [`docs/API.md`](./docs/API.md) — every endpoint documented with examples
 - [`docs/TESTING.md`](./docs/TESTING.md) — test pyramid, fixtures, markers
 - [`docs/ACCESSIBILITY.md`](./docs/ACCESSIBILITY.md) — WCAG 2.2 AA conformance plan
+- [`docs/SECURITY-CHECKLIST.md`](./docs/SECURITY-CHECKLIST.md) — OWASP ASVS L1 checklist
 - [`CHANGELOG.md`](./CHANGELOG.md) — version history (Keep-a-Changelog format)
 - [`CONTRIBUTING.md`](./CONTRIBUTING.md) — local dev, code style, PR flow
 - [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md) — community standards

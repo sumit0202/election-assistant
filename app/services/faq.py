@@ -114,6 +114,7 @@ def _tokenize(text: str) -> set[str]:
 
 @lru_cache(maxsize=1)
 def _load_faqs() -> list[dict]:
+    """Load and cache the FAQ JSON file from disk (process-wide singleton)."""
     try:
         with _FAQ_PATH.open("r", encoding="utf-8") as fh:
             data = json.load(fh)

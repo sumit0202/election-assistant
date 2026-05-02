@@ -22,6 +22,19 @@ def build_reminder_ics(
     duration_minutes: int = 60,
     location: str | None = None,
 ) -> bytes:
+    """Build an RFC-5545 `.ics` reminder with two `DISPLAY` alarms.
+
+    Args:
+        title: Short, user-visible event title.
+        description: Long-form details shown in the calendar UI.
+        start: Timezone-aware start datetime.
+        duration_minutes: Event duration in minutes (default 60).
+        location: Optional venue / address string.
+
+    Returns:
+        Raw bytes of a complete VCALENDAR ready to download with
+        `Content-Type: text/calendar`.
+    """
     cal = Calendar()
     cal.add("prodid", "-//Election Assistant//EN")
     cal.add("version", "2.0")

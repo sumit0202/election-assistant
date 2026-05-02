@@ -72,13 +72,41 @@ indent-style = "space"
 [tool.mypy]
 python_version = "3.11"
 strict_optional = true
-warn_unused_ignores = true
+# We keep `# type: ignore` markers on optional-dependency imports so the
+# code typechecks identically whether or not the SDK is installed; do not
+# flag them as unused.
+warn_unused_ignores = false
 warn_redundant_casts = true
 warn_unreachable = true
 disallow_untyped_defs = false
 ignore_missing_imports = true
 exclude = ["tests/", "build/", "dist/"]
 
+[[tool.mypy.overrides]]
+# slowapi ships its own handler signature that mismatches Starlette's
+# generic `Exception` type; the runtime contract is correct.
+module = "slowapi.*"
+ignore_errors = true
+
 [tool.bandit]
 skips = ["B101", "B104"]
 exclude_dirs = ["tests", ".venv"]
+
+[tool.interrogate]
+# Enforces docstring coverage on the public API surface.
+# See docs/CODE-QUALITY.md for rationale.
+ignore-init-method = true
+ignore-init-module = true
+ignore-magic = true
+ignore-private = true
+ignore-semiprivate = false
+ignore-property-decorators = false
+ignore-module = false
+ignore-nested-functions = true
+ignore-nested-classes = false
+ignore-setters = true
+fail-under = 95
+exclude = ["tests", "build", "dist", ".venv"]
+verbose = 1
+quiet = false
+color = true

@@ -68,6 +68,7 @@ class _RequestIdFilter(logging.Filter):
     """Inject a placeholder ``request_id`` if no contextvar is set."""
 
     def filter(self, record: logging.LogRecord) -> bool:
+        """Stamp every log record with a `request_id` field so the format string never KeyErrors."""
         if not hasattr(record, "request_id"):
             record.request_id = "-"
         return True
@@ -141,7 +142,7 @@ app = FastAPI(
     ],
 )
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 
 
 def _settings_dep() -> Settings:
