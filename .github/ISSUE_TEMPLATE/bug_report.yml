@@ -1,0 +1,57 @@
+name: Bug report
+description: Something isn't working the way it should.
+title: "[bug] "
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug! Please include enough detail that someone
+        can reproduce the problem on their machine.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `/api/health` or the git commit hash
+      placeholder: "1.0.0 (commit dde15c9)"
+    validations:
+      required: true
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Deployment
+      options: [Local dev (./run.sh), Local Docker, Cloud Run, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Curl commands or UI steps. Include request/response bodies.
+      placeholder: |
+        1. Open http://localhost:8080
+        2. Type "..." and press Enter
+        3. See error toast
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: Include the X-Request-ID header and any server log lines.
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      placeholder: |
+        - OS: macOS 15.2
+        - Python: 3.11.10
+        - Browser: Chrome 130

@@ -1,5 +1,16 @@
 # CivicGuide — Election Process Education Assistant
 
+[![CI](https://github.com/sumit0202/election-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/sumit0202/election-assistant/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/sumit0202/election-assistant/actions/workflows/codeql.yml/badge.svg)](https://github.com/sumit0202/election-assistant/actions/workflows/codeql.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)](https://www.python.org/)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://docs.astral.sh/ruff/)
+[![Coverage](https://img.shields.io/badge/coverage-93%25-brightgreen)](./docs/TESTING.md)
+[![Tests](https://img.shields.io/badge/tests-90%20passed-brightgreen)](./tests)
+[![WCAG](https://img.shields.io/badge/WCAG-2.2%20AA-success)](./docs/ACCESSIBILITY.md)
+[![Security](https://img.shields.io/badge/security-bandit%20%7C%20pip--audit%20%7C%20codeql-red)](./SECURITY.md)
+[![Cloud Run](https://img.shields.io/badge/deployed%20on-Cloud%20Run-4285F4?logo=googlecloud&logoColor=white)](https://cloud.google.com/run)
+
 > **Vertical chosen:** _Election Process Education_ — _"Create an assistant
 > that helps users understand the election process, timelines, and steps in
 > an interactive and easy-to-follow way."_
