@@ -95,9 +95,9 @@ def test_every_route_documents_a_response(schema: dict) -> None:
                 continue
             responses = op.get("responses", {})
             assert "200" in responses, f"{verb.upper()} {path} missing 200 response"
-            assert responses["200"].get("description"), (
-                f"{verb.upper()} {path} 200 response has no description"
-            )
+            assert responses["200"].get(
+                "description"
+            ), f"{verb.upper()} {path} 200 response has no description"
 
 
 def test_every_input_model_has_an_example(schema: dict) -> None:

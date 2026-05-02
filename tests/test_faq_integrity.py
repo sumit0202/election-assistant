@@ -62,9 +62,9 @@ def test_answers_are_substantial(faqs: list[dict]) -> None:
     """A useful answer is at least 100 chars; nudges authors to write enough."""
 
     for entry in faqs:
-        assert len(entry["answer"]) >= 100, (
-            f"{entry['id']}: answer too short ({len(entry['answer'])} chars)"
-        )
+        assert (
+            len(entry["answer"]) >= 100
+        ), f"{entry['id']}: answer too short ({len(entry['answer'])} chars)"
 
 
 def test_answers_cite_eci(faqs: list[dict]) -> None:
@@ -77,9 +77,9 @@ def test_answers_cite_eci(faqs: list[dict]) -> None:
     )
     # At least half of all entries should reference the ECI to maintain
     # the project's "verify on official sources" promise.
-    assert citing_count * 2 >= len(faqs), (
-        f"only {citing_count}/{len(faqs)} entries cite ECI — please add citations"
-    )
+    assert citing_count * 2 >= len(
+        faqs
+    ), f"only {citing_count}/{len(faqs)} entries cite ECI — please add citations"
 
 
 def test_keywords_are_lowercase(faqs: list[dict]) -> None:
@@ -103,6 +103,6 @@ def test_no_partisan_content_in_answers(faqs: list[dict]) -> None:
     for entry in faqs:
         body = entry["answer"].lower()
         for phrase in forbidden:
-            assert phrase not in body, (
-                f"{entry['id']}: contains potentially partisan phrase '{phrase}'"
-            )
+            assert (
+                phrase not in body
+            ), f"{entry['id']}: contains potentially partisan phrase '{phrase}'"

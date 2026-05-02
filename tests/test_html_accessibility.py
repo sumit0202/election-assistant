@@ -118,9 +118,9 @@ def test_every_form_input_has_a_label(doc: _Collector) -> None:
                 continue
             has_label = input_id in label_targets
             has_aria_label = bool(attrs.get("aria-label"))
-            assert has_label or has_aria_label, (
-                f"<{tag} id='{input_id}'> has no <label for=...> or aria-label"
-            )
+            assert (
+                has_label or has_aria_label
+            ), f"<{tag} id='{input_id}'> has no <label for=...> or aria-label"
 
 
 def test_buttons_have_accessible_names(doc: _Collector) -> None:
@@ -131,9 +131,9 @@ def test_buttons_have_accessible_names(doc: _Collector) -> None:
             continue
         has_aria_label = bool(attrs.get("aria-label", "").strip())
         has_visible_text = bool(doc.text_for[idx].strip())
-        assert has_aria_label or has_visible_text, (
-            f"<button id={attrs.get('id')!r}> has no aria-label or visible text"
-        )
+        assert (
+            has_aria_label or has_visible_text
+        ), f"<button id={attrs.get('id')!r}> has no aria-label or visible text"
 
 
 def test_locale_options_carry_lang_attr(doc: _Collector) -> None:

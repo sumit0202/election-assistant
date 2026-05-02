@@ -23,7 +23,8 @@ install: ## Create a venv and install dependencies
 	$(PY) -m venv $(VENV)
 	$(PIP) install --upgrade pip
 	$(PIP) install -r requirements.txt
-	$(PIP) install pytest pytest-asyncio pytest-cov respx hypothesis ruff 'bandit[toml]' pip-audit pre-commit mypy interrogate
+	$(PIP) install pytest==8.3.3 pytest-asyncio==0.24.0 pytest-cov==6.0.0 respx==0.21.1 hypothesis==6.115.6 \
+	  ruff==0.6.9 'bandit[toml]==1.7.10' pip-audit==2.7.3 pre-commit mypy==1.13.0 interrogate==1.7.0
 
 .PHONY: run
 run: ## Run the dev server on port 8080
