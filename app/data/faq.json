@@ -1,0 +1,64 @@
+{
+  "faqs": [
+    {
+      "id": "register-first-time",
+      "keywords": ["register", "registration", "first time", "first-time", "new voter", "enroll", "enrol", "form 6"],
+      "title": "How do I register as a first-time voter in India?",
+      "answer": "To register as a first-time voter in India, you need to be at least 18 years old and an Indian citizen. The simplest path is online:\n\n1. Visit the **Voter Helpline portal** at [voters.eci.gov.in](https://voters.eci.gov.in) or the **Voter Helpline app** (Android/iOS).\n2. Click **'New registration for general electors'** (Form 6).\n3. Fill in your personal details, current address, and date of birth.\n4. Upload supporting documents: a passport-size photo, age proof (birth certificate / 10th marksheet / passport / Aadhaar) and address proof (Aadhaar / utility bill / passport).\n5. Submit. You'll get a reference number to track your application.\n\nOffline: visit your local **Booth Level Officer (BLO)** with the same documents and a printed Form 6.\n\n_Verification typically takes 30–60 days. You'll receive your **EPIC (Voter ID card)** by post or can download an e-EPIC._"
+    },
+    {
+      "id": "voter-id-required",
+      "keywords": ["id", "documents", "what id", "voter id", "epic", "what to bring", "identification"],
+      "title": "What ID do I need to bring to the polling station?",
+      "answer": "On polling day, you primarily need your **Elector Photo Identity Card (EPIC / Voter ID)**. If you don't have your EPIC, the Election Commission of India accepts these alternative photo IDs:\n\n- Aadhaar Card\n- Passport\n- Driving Licence\n- PAN Card\n- Service Identity Card (with photograph) issued by Central/State Govt, PSUs, or Public Limited Companies\n- Passbook with photograph issued by Bank/Post Office\n- MGNREGA Job Card\n- Health Insurance Smart Card issued under Ministry of Labour scheme\n- Pension document with photograph\n- Smart Card issued by RGI under NPR\n- Official identity cards issued to MPs/MLAs/MLCs\n\n_Your name **must** be on the electoral roll for that polling booth — bring any one of these, plus check your name in advance on [electoralsearch.eci.gov.in](https://electoralsearch.eci.gov.in)._"
+    },
+    {
+      "id": "find-polling-booth",
+      "keywords": ["polling booth", "polling station", "where to vote", "find booth", "my booth", "booth location"],
+      "title": "How do I find my polling booth?",
+      "answer": "Your assigned polling booth is decided by the Election Commission based on your registered address. To find it:\n\n1. Visit [electoralsearch.eci.gov.in](https://electoralsearch.eci.gov.in)\n2. Search by your **EPIC number** OR by your name + state + district.\n3. The page shows your part number, serial number, and the **polling booth address**.\n\nAlternatively, the **Voter Helpline app** has a 'Search My Name' feature that returns the same data.\n\nThis assistant's _Find polling-style venues_ tool can show you typical venues nearby (schools, halls), but only the official portal can tell you your *assigned* booth — always cross-check there."
+    },
+    {
+      "id": "polling-timings",
+      "keywords": ["timings", "hours", "what time", "open", "close", "when can i vote", "polling time"],
+      "title": "What are the polling hours?",
+      "answer": "General Lok Sabha and State Assembly elections in India typically run from **7:00 AM to 6:00 PM** local time. Specific timings vary slightly by:\n\n- **Constituency** — some Naxal-affected or remote areas close earlier (e.g. 4 PM).\n- **Special booths** — model polling stations may have specific timings.\n\nIf you arrive at the polling station **before 6 PM** (or the official close time), you are entitled to vote even if you wait in queue past closing time. The Election Commission issues queue tokens to those present at closing.\n\n_Check exact timings on your state CEO's website or in the press release for that election day._"
+    },
+    {
+      "id": "evm-vvpat",
+      "keywords": ["evm", "vvpat", "electronic voting", "voting machine", "paper trail", "how does evm work"],
+      "title": "How do EVMs and VVPAT work?",
+      "answer": "**EVM (Electronic Voting Machine)** has two units:\n\n- **Ballot Unit** — has buttons next to each candidate's name + symbol; the voter presses one.\n- **Control Unit** — held by the Polling Officer; releases one ballot at a time and stores votes.\n\n**VVPAT (Voter-Verifiable Paper Audit Trail)** is a small printer attached to the ballot unit. After you press the button:\n\n1. A paper slip prints showing the candidate's serial number, name, and party symbol.\n2. The slip is visible through a glass window for **7 seconds**.\n3. Then it's automatically cut and dropped into a sealed VVPAT box.\n\nVVPAT slips from a randomly selected polling station **per assembly segment** are physically counted and matched against EVM totals to verify accuracy.\n\nEVMs are **not connected** to the internet, Bluetooth, or any external network — they're standalone, sealed devices."
+    },
+    {
+      "id": "postal-ballot",
+      "keywords": ["postal", "postal ballot", "postal vote", "absentee", "vote from home", "armed forces vote"],
+      "title": "Who can vote via postal ballot?",
+      "answer": "Postal ballot is available to specific categories of voters who can't be physically present at a polling booth:\n\n- **Service voters**: armed forces, paramilitary, government employees on election duty, and those posted abroad.\n- **Special voters**: people on preventive detention.\n- **Persons with Disabilities (PwD)** and **senior citizens above 85 years** — can opt for postal ballot via Form 12-D.\n- **COVID-19 / essential service workers** — applied during specific elections.\n- **Voters on essential services** notified by the ECI for that election.\n\nApply via **Form 12 / 12-A / 12-D** depending on category, well before the election. Filled ballots must reach the Returning Officer by the time counting starts."
+    },
+    {
+      "id": "nota",
+      "keywords": ["nota", "none of the above", "reject all"],
+      "title": "What is NOTA?",
+      "answer": "**NOTA (None Of The Above)** is the last option on every EVM ballot. Pressing it records that you voted but didn't support any candidate.\n\n- NOTA was introduced by the Supreme Court in 2013.\n- Currently, NOTA votes are **counted but don't affect the result** — even if NOTA gets more votes than every candidate, the candidate with the most non-NOTA votes still wins.\n- It exists to give voters a way to register a formal protest while still participating in the democratic process.\n\nIf you choose NOTA, your secrecy is preserved — the EVM doesn't link your choice to your identity."
+    },
+    {
+      "id": "election-commission",
+      "keywords": ["election commission", "eci", "who runs", "who conducts", "role of election commission"],
+      "title": "What is the Election Commission of India and what does it do?",
+      "answer": "The **Election Commission of India (ECI)** is an autonomous constitutional authority established under Article 324 of the Constitution. It conducts elections to:\n\n- **Lok Sabha** (lower house of Parliament)\n- **Rajya Sabha** (upper house of Parliament)\n- **State Legislative Assemblies** (Vidhan Sabhas)\n- **State Legislative Councils** (Vidhan Parishads)\n- **Office of the President** and **Vice-President**\n\nIt does **not** conduct local body elections (Panchayat, Municipality) — those are run by State Election Commissions.\n\nThe ECI:\n- Maintains the electoral roll\n- Issues Voter ID cards (EPIC)\n- Decides election schedules\n- Enforces the Model Code of Conduct\n- Recognises political parties and allots symbols\n- Supervises EVMs/VVPAT\n\nIt operates from **Nirvachan Sadan, New Delhi**, with a Chief Election Commissioner and two Election Commissioners. Official site: [eci.gov.in](https://eci.gov.in)."
+    },
+    {
+      "id": "model-code-of-conduct",
+      "keywords": ["model code", "moral code", "code of conduct", "mcc", "what can candidates do"],
+      "title": "What is the Model Code of Conduct?",
+      "answer": "The **Model Code of Conduct (MCC)** is a set of guidelines issued by the Election Commission to govern the behaviour of political parties, candidates, and the government during elections.\n\nIt comes into force from the **date elections are announced** and stays until results are declared.\n\nKey rules:\n- No new policy announcements, transfers of officials, or use of public funds for political gain.\n- No religion / caste-based appeals.\n- No personal attacks unrelated to public conduct.\n- Campaign restrictions: silence period 48 hours before polling.\n- Vehicle / loudspeaker permits required.\n\nThe MCC is **not legally enforceable**, but the ECI can publicly censure violators and refer cases to law enforcement for related offences (bribery, hate speech, etc.)."
+    },
+    {
+      "id": "result-counting",
+      "keywords": ["counting", "results", "how votes counted", "when results", "counting day"],
+      "title": "How are votes counted?",
+      "answer": "Counting happens at **designated counting centres**, usually a few weeks after polling, on a single 'counting day' announced by the ECI.\n\n**Process:**\n1. **Postal ballots** are counted first (usually starting at 8 AM).\n2. **EVM votes** are counted next, by polling station (each round counts 14 EVMs).\n3. After every round, results are announced and uploaded to the ECI's results portal.\n4. **VVPAT verification**: 5 randomly selected polling stations per assembly segment have their VVPAT slips physically counted and matched.\n5. The **Returning Officer** declares the winner once all rounds + VVPAT match.\n\nObservers from each candidate can be present. The whole process is video-recorded.\n\nLive results: [results.eci.gov.in](https://results.eci.gov.in) on counting day."
+    }
+  ]
+}

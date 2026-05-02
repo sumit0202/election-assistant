@@ -8,6 +8,7 @@ import pytest
 
 from app.agent import AgentDeps, ElectionAgent
 from app.schemas import PollingPlace, VideoItem
+from app.services.errors import ServiceUnavailable
 
 
 class FakeGemini:
@@ -44,15 +45,18 @@ class FakeYouTube:
 @pytest.mark.asyncio
 async def test_agent_returns_direct_answer():
     deps = AgentDeps(
-        gemini=FakeGemini('{"tool":"none","say":"Voter registration uses Form 6."}'),
+        gemini=FakeGemini('{"tool":"none","say":"Indian Parliament has two houses."}'),
         maps=FakeMaps(),  # type: ignore[arg-type]
         youtube=FakeYouTube(),  # type: ignore[arg-type]
     )
     agent = ElectionAgent(deps)
+    # Use a query that won't match any FAQ entry, forcing LLM routing.
     result = await agent.respond(
-        user_message="How do I register?", locale="en", location=None
+        user_message="describe the structure of indian parliament briefly",
+        locale="en",
+        location=None,
     )
-    assert "Form 6" in result.reply
+    assert "Parliament" in result.reply
     assert result.tools_used == []
 
 
@@ -81,8 +85,12 @@ async def test_agent_invokes_video_tool():
         youtube=FakeYouTube(),  # type: ignore[arg-type]
     )
     agent = ElectionAgent(deps)
+    # The phrase "show me explainer videos" trips the tool-intent heuristic
+    # so the agent skips the FAQ and lets the LLM route to the video tool.
     result = await agent.respond(
-        user_message="explain EVM", locale="en", location=None
+        user_message="show me explainer videos on EVM",
+        locale="en",
+        location=None,
     )
     assert "How EVM works" in result.reply
     assert result.tools_used[0].name == "videos"
@@ -90,9 +98,50 @@ async def test_agent_invokes_video_tool():
 
 @pytest.mark.asyncio
 async def test_agent_handles_invalid_json_gracefully():
-    deps = AgentDeps(gemini=FakeGemini("Not JSON, just prose about elections."))
+    deps = AgentDeps(gemini=FakeGemini("Not JSON, just prose about something obscure."))
+    agent = ElectionAgent(deps)
+    # Use a query that won't match any FAQ so we exercise the LLM path.
+    result = await agent.respond(
+        user_message="tell me about something obscure", locale="en", location=None
+    )
+    assert "obscure" in result.reply.lower()
+
+
+@pytest.mark.asyncio
+async def test_faq_short_circuits_known_question():
+    """The agent should answer common questions from the FAQ without
+    calling the LLM at all — saving cost and working even if Gemini is down."""
+
+    class ExplodingGemini:
+        async def generate(self, *_args, **_kwargs):  # noqa: ANN001
+            raise AssertionError("Gemini should not be called for FAQ questions")
+
+    deps = AgentDeps(gemini=ExplodingGemini())  # type: ignore[arg-type]
     agent = ElectionAgent(deps)
     result = await agent.respond(
-        user_message="hi", locale="en", location=None
+        user_message="How do I register as a first-time voter?",
+        locale="en",
+        location=None,
     )
-    assert "elections" in result.reply.lower()
+    assert result.tools_used and result.tools_used[0].name == "faq"
+    assert "Form 6" in result.reply or "voters.eci.gov.in" in result.reply
+
+
+@pytest.mark.asyncio
+async def test_agent_falls_back_when_llm_unavailable():
+    """If Gemini raises ServiceUnavailable on a non-FAQ question, the agent
+    should still produce a useful answer (best-effort FAQ + graceful note)."""
+
+    class FailingGemini:
+        async def generate(self, *_args, **_kwargs):  # noqa: ANN001
+            raise ServiceUnavailable("Gemini", "quota exceeded")
+
+    deps = AgentDeps(gemini=FailingGemini())  # type: ignore[arg-type]
+    agent = ElectionAgent(deps)
+    result = await agent.respond(
+        user_message="explain the entire history of indian democracy",
+        locale="en",
+        location=None,
+    )
+    # Either FAQ best-effort or graceful_fallback; both must mention eci.gov.in
+    assert "eci.gov.in" in result.reply.lower() or "election commission" in result.reply.lower()
