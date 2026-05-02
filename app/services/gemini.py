@@ -12,8 +12,9 @@ Falls back to the AI Studio API (`google-generativeai`) when only a
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Any, Iterable
+from typing import Any
 
 from .errors import ServiceUnavailable
 
@@ -22,11 +23,17 @@ log = logging.getLogger(__name__)
 # Vertex AI — preferred. Loaded lazily so import errors don't break boot.
 try:
     import vertexai  # type: ignore[import-not-found]
+    from vertexai.generative_models import (
+        GenerationConfig as VertexGenerationConfig,
+    )
     from vertexai.generative_models import (  # type: ignore[import-not-found]
         GenerativeModel as VertexGenerativeModel,
-        GenerationConfig as VertexGenerationConfig,
-        HarmCategory as VertexHarmCategory,
+    )
+    from vertexai.generative_models import (
         HarmBlockThreshold as VertexHarmBlockThreshold,
+    )
+    from vertexai.generative_models import (
+        HarmCategory as VertexHarmCategory,
     )
 except Exception:  # pragma: no cover - optional dep
     vertexai = None  # type: ignore[assignment]
@@ -92,8 +99,11 @@ class GeminiClient:
         except Exception as exc:  # pragma: no cover
             raise ServiceUnavailable("Gemini", f"vertexai.init failed: {exc}") from exc
         self._backend = "vertex"
-        log.info("Gemini backend = Vertex AI (project=%s, location=%s)",
-                 self._config.project, self._config.location)
+        log.info(
+            "Gemini backend = Vertex AI (project=%s, location=%s)",
+            self._config.project,
+            self._config.location,
+        )
 
     def _init_aistudio(self) -> None:
         if genai is None:

@@ -7,7 +7,7 @@ Translate clients before the FastAPI app is imported.
 from __future__ import annotations
 
 import os
-from typing import Iterator
+from collections.abc import Iterator
 
 import pytest
 

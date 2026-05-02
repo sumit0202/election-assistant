@@ -16,9 +16,9 @@ forward references like `ChatRequest`.
 import logging
 import os
 import sys
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from io import BytesIO
-from typing import AsyncIterator
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -123,6 +123,25 @@ app.add_middleware(
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 
+# Content-Security-Policy is intentionally strict; the SPA only loads its
+# own JS/CSS and renders Markdown into a sandboxed DOM (no inline scripts).
+# `frame-ancestors 'none'` doubles up with X-Frame-Options for old browsers.
+_CSP = (
+    "default-src 'self'; "
+    "script-src 'self'; "
+    "style-src 'self' 'unsafe-inline'; "
+    "img-src 'self' data: https://i.ytimg.com https://yt3.ggpht.com; "
+    "font-src 'self' data:; "
+    "connect-src 'self'; "
+    "frame-src https://www.youtube.com https://www.youtube-nocookie.com; "
+    "frame-ancestors 'none'; "
+    "form-action 'self'; "
+    "base-uri 'self'; "
+    "object-src 'none'; "
+    "upgrade-insecure-requests"
+)
+
+
 @app.middleware("http")
 async def security_headers(request: Request, call_next):  # type: ignore[no-untyped-def]
     response = await call_next(request)
@@ -130,6 +149,14 @@ async def security_headers(request: Request, call_next):  # type: ignore[no-unty
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Permissions-Policy"] = "geolocation=(self), microphone=(), camera=()"
+    response.headers["Content-Security-Policy"] = _CSP
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
+    # HSTS is meaningful only over HTTPS; Cloud Run terminates TLS upstream.
+    if request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https":
+        response.headers["Strict-Transport-Security"] = (
+            "max-age=31536000; includeSubDomains; preload"
+        )
     return response
 
 
@@ -156,10 +183,12 @@ async def health(settings: Settings = Depends(_settings_dep)) -> HealthResponse:
     tags=["chat"],
 )
 @limiter.limit(lambda: f"{get_settings().rate_limit_per_minute}/minute")
-async def chat(request: Request, body: ChatRequest) -> ChatResponse:  # noqa: ARG001
+async def chat(request: Request, body: ChatRequest) -> ChatResponse:
     verdict = check_input(body.message)
     if not verdict.allowed:
-        return ChatResponse(reply=verdict.reason or "Request blocked.", locale=body.locale, safety_filtered=True)
+        return ChatResponse(
+            reply=verdict.reason or "Request blocked.", locale=body.locale, safety_filtered=True
+        )
 
     sanitized = verdict.sanitized_text or body.message
     agent: ElectionAgent = app.state.agent
@@ -190,14 +219,14 @@ async def chat(request: Request, body: ChatRequest) -> ChatResponse:  # noqa: AR
 
 @app.post("/api/polling-places", response_model=PollingPlaceResponse, tags=["tools"])
 @limiter.limit(lambda: f"{get_settings().rate_limit_per_minute}/minute")
-async def polling_places(request: Request, body: PollingPlaceQuery) -> PollingPlaceResponse:  # noqa: ARG001
+async def polling_places(request: Request, body: PollingPlaceQuery) -> PollingPlaceResponse:
     formatted, places = await app.state.maps.find_polling_places(body.address, body.radius_m)
     return PollingPlaceResponse(query=formatted, results=places)
 
 
 @app.post("/api/videos", response_model=VideoResponse, tags=["tools"])
 @limiter.limit(lambda: f"{get_settings().rate_limit_per_minute}/minute")
-async def videos(request: Request, body: VideoQuery) -> VideoResponse:  # noqa: ARG001
+async def videos(request: Request, body: VideoQuery) -> VideoResponse:
     items = await app.state.youtube.search(
         body.topic, locale=body.locale, max_results=body.max_results
     )
@@ -206,14 +235,14 @@ async def videos(request: Request, body: VideoQuery) -> VideoResponse:  # noqa: 
 
 @app.post("/api/translate", response_model=TranslateResponse, tags=["tools"])
 @limiter.limit(lambda: f"{get_settings().rate_limit_per_minute}/minute")
-async def translate(request: Request, body: TranslateRequest) -> TranslateResponse:  # noqa: ARG001
+async def translate(request: Request, body: TranslateRequest) -> TranslateResponse:
     text, detected = await app.state.translate.translate(body.text, body.target, body.source)
     return TranslateResponse(text=text, target=body.target, source_detected=detected)
 
 
 @app.post("/api/reminder.ics", tags=["tools"])
 @limiter.limit(lambda: f"{get_settings().rate_limit_per_minute}/minute")
-async def reminder(request: Request, body: ReminderRequest):  # noqa: ARG001
+async def reminder(request: Request, body: ReminderRequest):
     payload = build_reminder_ics(
         title=body.title,
         description=body.description,
@@ -237,6 +266,18 @@ if os.path.isdir(_STATIC_DIR):
     @app.get("/", include_in_schema=False)
     async def index() -> FileResponse:
         return FileResponse(os.path.join(_STATIC_DIR, "index.html"))
+
+    @app.get("/robots.txt", include_in_schema=False)
+    async def robots() -> FileResponse:
+        # Conventional location at site root; crawlers won't look in /static/.
+        return FileResponse(os.path.join(_STATIC_DIR, "robots.txt"), media_type="text/plain")
+
+    @app.get("/manifest.json", include_in_schema=False)
+    async def manifest() -> FileResponse:
+        return FileResponse(
+            os.path.join(_STATIC_DIR, "manifest.json"),
+            media_type="application/manifest+json",
+        )
 
 
 # ---------- 404 fallback ----------

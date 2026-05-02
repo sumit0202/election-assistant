@@ -86,7 +86,18 @@ function appendMessage(role, text, { meta } = {}) {
 function setBusy(b) {
   els.messages.setAttribute("aria-busy", String(b));
   els.sendBtn.disabled = b;
+  // Update label so screen readers announce the state change.
+  els.sendBtn.setAttribute("aria-label", b ? "Sending… please wait" : "Send message");
 }
+
+// Keep `<html lang>` synced with the chosen locale so screen readers
+// pronounce content correctly. Fires on initial load and every change.
+function syncDocumentLang() {
+  const lang = els.locale.value || "en";
+  document.documentElement.setAttribute("lang", lang);
+}
+els.locale.addEventListener("change", syncDocumentLang);
+syncDocumentLang();
 
 async function postJSON(url, body) {
   const r = await fetch(url, {

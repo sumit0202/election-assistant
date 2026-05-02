@@ -4,7 +4,9 @@ from app.safety import check_input, check_output
 def test_blocks_partisan_question():
     v = check_input("Who should I vote for in the next election?")
     assert v.allowed is False
-    assert "non-partisan" in (v.reason or "").lower() or "won't recommend" in (v.reason or "").lower()
+    assert (
+        "non-partisan" in (v.reason or "").lower() or "won't recommend" in (v.reason or "").lower()
+    )
 
 
 def test_blocks_prompt_injection():

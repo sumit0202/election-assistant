@@ -2,8 +2,8 @@
 
 Two endpoints are used:
 
-* Geocoding API – turn a free-text address into lat/lng.
-* Places API (Text Search)  – find candidate polling locations nearby.
+* Geocoding API - turn a free-text address into lat/lng.
+* Places API (Text Search) - find candidate polling locations nearby.
 
 The HTTP layer uses `httpx.AsyncClient` so it composes naturally with FastAPI.
 """
@@ -51,9 +51,7 @@ class MapsClient:
         r.raise_for_status()
         data = r.json()
         if data.get("status") != "OK" or not data.get("results"):
-            raise ServiceUnavailable(
-                "Google Maps", f"geocoding failed: {data.get('status')}"
-            )
+            raise ServiceUnavailable("Google Maps", f"geocoding failed: {data.get('status')}")
         top = data["results"][0]
         loc = top["geometry"]["location"]
         return float(loc["lat"]), float(loc["lng"]), top.get("formatted_address", address)
@@ -108,7 +106,7 @@ class MapsClient:
                 )
             )
 
-        results.sort(key=lambda p: (p.distance_m if p.distance_m is not None else 1e12))
+        results.sort(key=lambda p: p.distance_m if p.distance_m is not None else 1e12)
         return formatted, results
 
     async def aclose(self) -> None:

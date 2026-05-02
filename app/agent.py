@@ -22,7 +22,8 @@ from typing import Any
 
 from .schemas import ToolCall
 from .services.errors import ServiceUnavailable
-from .services.faq import FaqHit, best_match as faq_best_match, graceful_fallback
+from .services.faq import FaqHit, graceful_fallback
+from .services.faq import best_match as faq_best_match
 from .services.gemini import GeminiClient
 from .services.maps import MapsClient
 from .services.youtube import YouTubeClient
@@ -141,7 +142,9 @@ class ElectionAgent:
 
         return AgentResult(
             reply=say or raw.strip(),
-            citations=["Verify region-specific details on your official Election Commission portal."],
+            citations=[
+                "Verify region-specific details on your official Election Commission portal."
+            ],
         )
 
     # ------------------------------------------------------------------
@@ -152,9 +155,9 @@ class ElectionAgent:
     def _likely_tool_intent(text: str) -> bool:
         """Cheap heuristic: does the message obviously need Maps or YouTube?"""
         t = text.lower()
-        return (
-            "polling" in t and ("near" in t or "find" in t or "where" in t)
-        ) or any(w in t for w in ("video", "youtube", "explainer", "watch"))
+        return ("polling" in t and ("near" in t or "find" in t or "where" in t)) or any(
+            w in t for w in ("video", "youtube", "explainer", "watch")
+        )
 
     def _llm_unavailable_fallback(self, user_message: str) -> AgentResult:
         """Best effort when Gemini is down — try FAQ even below threshold."""
@@ -198,7 +201,9 @@ class ElectionAgent:
             assert self._deps.maps is not None
             formatted, places = await self._deps.maps.find_polling_places(address)
         except ServiceUnavailable as exc:
-            return AgentResult(reply=f"Polling lookup is unavailable right now: {exc.detail or exc}")
+            return AgentResult(
+                reply=f"Polling lookup is unavailable right now: {exc.detail or exc}"
+            )
 
         lines: list[str] = [say or f"Here are polling-style venues near **{formatted}**:", ""]
         if not places:
@@ -225,9 +230,7 @@ class ElectionAgent:
             citations=["Google Maps Platform"],
         )
 
-    async def _handle_videos(
-        self, say: str, args: dict[str, Any], locale: str
-    ) -> AgentResult:
+    async def _handle_videos(self, say: str, args: dict[str, Any], locale: str) -> AgentResult:
         topic = (args.get("topic") or "voter registration process").strip()
         try:
             assert self._deps.youtube is not None
@@ -256,9 +259,7 @@ class ElectionAgent:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _build_user_prompt(
-        message: str, locale: str, location: str | None
-    ) -> str:
+    def _build_user_prompt(message: str, locale: str, location: str | None) -> str:
         ctx_parts = [f"User locale: {locale}"]
         if location:
             ctx_parts.append(f"User location hint: {location}")
